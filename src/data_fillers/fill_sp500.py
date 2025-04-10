@@ -7,6 +7,7 @@ def sp500_membership_filler(path  : str = '../../data/memberships/'):
     tables = pd.read_html(url)
     sp500_df = tables[0]
     tickers = sp500_df['Symbol'].tolist()
+    tickers.sort()
     for i in tickers:
         fd.write(i + '\n')
     fd.close()
