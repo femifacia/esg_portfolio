@@ -1,5 +1,27 @@
 import pickle
 import os
+import Asset
+
+def get_universe_tickers(universe_name : str, membership_dir = '../data/memberships/',info_dir = '../data/ticker_infos/', esg_dir='../data/ticker_esg/'):
+    ans  = []
+    
+    fd = open(membership_dir + universe_name)
+    universe_ticker_name = list(filter(lambda x : x, fd.read().split('\n')))
+    fd.close()
+
+    for i in universe_ticker_name:
+        fd = open(info_dir + i, 'rb')
+        info = pickle.load(fd)
+        fd.close()
+        asset = Asset.Asset(i)
+        asset.load_info(info)
+        fd = open(esg_dir + i, 'rb')
+        esg_data = pickle.load(fd)
+        fd.close()
+        asset.load_esg(esg_data)
+        ans.append(asset)
+
+    return  ans
 
 def get_content_dir(path) -> list[str]:
     files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
