@@ -1,4 +1,8 @@
 class Asset:
+
+    def __repr__(self):
+        return self.ticker
+
     def __init__(self,ticker : str = None, sector : str= None, country : str= None, esg : int= None, exchange : str= None):
         self.ticker = ticker
         self.sector = sector
