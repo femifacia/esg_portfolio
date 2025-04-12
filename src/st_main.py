@@ -220,11 +220,11 @@ def print_portfolio():
 
 if portfolio[0] is None:
     st.text("Let's Build a portfolio")
-    st.image("../img/Finance app-pana.png")
+    st.image("./img/Finance app-pana.png")
 elif portfolio[0] == 'na':
     st.text('No ticker found!!!')
     st.text('Please reset your filters!')
-    st.image("../img/Empty-pana.png")
+    st.image("./img/Empty-pana.png")
 else:
     print_portfolio()
 
