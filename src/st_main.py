@@ -2,8 +2,25 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import ticker_utilities
+from Portfolio import Portfolio
 
 
+@st.cache_resource
+def init_portfolio():
+    return [None]
+
+@st.cache_resource
+def get_portfolio(universe : list[str], filters : dict[str], weights : str, sort_cri, start : str, end : str, nbr_tickers : int):
+    portf = Portfolio(universe, start=start, end=end)
+    for i in filters:
+        portf.addFilterWithArgsFromKey(i, filters[i])
+    portf.cut_out_of_cart_tickers(nbr_tickers)
+    print(portf.filtered_tickers_arr)
+    for i in (portf.filtered_tickers_arr):
+        i.describe()
+
+
+portfolio = init_portfolio()
 @st.cache_resource
 def init_generating_error(is_error : bool) -> list[bool]:
     return [0]
@@ -51,7 +68,7 @@ DATA_URL = ('https://s3-us-west-2.amazonaws.com/'
 data_load_state = st.text("Let's build an ESG Portfolio")
 st.sidebar.title("Criteria & Filters")
 st.sidebar.subheader("Universe Picking")
-universe_input = st.sidebar.multiselect("Universe", ["SPX", "CAC40"], 'SPX')
+universe_input = st.sidebar.multiselect("Universe", ["SP500"], 'SP500')
 
 st.sidebar.subheader("Filters")
 #print(sectors_found)
@@ -94,6 +111,23 @@ def generate_portfolio_onclick(*args, **kwargs):
         return
     is_generating_error[0] = 0
     error_message[0] = 0
+    universe = universe_input
+    filters  = {
+        "sectors_accepted" : {'sectors_accepted':sectors_accepted},
+        "countries_accepted" : {'countries_accepted' : countries_accepted},
+        "exchange_accepeted" : {'exchange_accepted' : exchanges_accepted},
+        "min_esg_total_note" : {'min_esg_total_note' : min_esg_total_note},
+        "max_esg_total_note" : {"max_esg_total_note" : max_esg_total_note}
+
+
+    }
+    weights = weight_input
+    sort_cri = sort_input
+    start = start_date_input
+    end = end_date_input
+    nbr_tickers  = nbr_tickers_input
+    portfolio[0] = get_portfolio(universe=universe,filters=filters,weights=weights,sort_cri=sort_cri,start=start,end=end,nbr_tickers=nbr_tickers)
+
 
 
  

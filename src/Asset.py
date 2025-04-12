@@ -10,6 +10,14 @@ class Asset:
         self.esg = esg
         self.exchange = exchange
 
+    def describe(self):
+        print(f'{self.ticker}')
+        print(f'country : {self.country}')
+        print(f"{self.sector}")
+        print(f'{self.exchange}')
+        print(f'{self.esg_total_score}')
+        print('-----')
+
     def load_info(self, info):
         sah = []
         for i in info:
@@ -34,3 +42,8 @@ class Asset:
     
     def load_esg(self, esg_data):
         self.esg_data = esg_data
+#        print(esg_data)
+        if not isinstance(esg_data, dict) or not 'totalEsg' in esg_data:
+            self.esg_total_score = 0
+        else:
+            self.esg_total_score = esg_data['totalEsg']
