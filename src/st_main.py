@@ -22,7 +22,7 @@ def get_portfolio(universe : list[str], filters : dict[str], weights : str, sort
         portf.addFilterWithArgsFromKey(i, filters[i])
     portf.addSortCriteria(sort_cri)
     if len(portf.filtered_tickers_arr) == 0:
-        return ["na"]
+        return "na"
     portf.cut_out_of_cart_tickers(nbr_tickers)
     portf.computeWeightFromKey(weights)
     print(portf.filtered_tickers_arr)
@@ -177,7 +177,7 @@ def load_data(nrows):
 #    st.write(data)
 
 def print_portfolio():
-    st.text(f'Tickers found : **{len(portfolio[0].filtered_tickers_arr)}**' )
+    st.text(f'Tickers found : {len(portfolio[0].filtered_tickers_arr)}' )
     st.text(f'{portfolio[0].filtered_tickers_arr}')
 #    st.text(f'weights : {portfolio[0].weights}')
     p : Portfolio = portfolio[0]
