@@ -10,18 +10,21 @@ def init_portfolio():
     return [None]
 
 @st.cache_resource
-def get_portfolio(universe : list[str], filters : dict[str], weights : str, sort_cri, start : str, end : str, nbr_tickers : int):
+def get_portfolio(universe : list[str], filters : dict[str], weights : str, sort_cri, start : str, end : str, nbr_tickers : int, is_rand=0):
     portf = Portfolio(universe, start=start, end=end)
     for i in filters:
         portf.addFilterWithArgsFromKey(i, filters[i])
     portf.addSortCriteria(sort_cri)
+    if len(portf.filtered_tickers_arr) == 0:
+        return ["na"]
     portf.cut_out_of_cart_tickers(nbr_tickers)
     portf.computeWeightFromKey(weights)
     print(portf.filtered_tickers_arr)
     for i in (portf.filtered_tickers_arr):
         i.describe()
     print(portf.weights)
-    print()
+    #portf.backtest()
+    return portf
 
 
 portfolio = init_portfolio()
@@ -32,6 +35,12 @@ def init_generating_error(is_error : bool) -> list[bool]:
 @st.cache_resource
 def init_error_message(mess : str) -> list[str]:
     return [""]
+
+@st.cache_resource
+def get_random_portfolio_bool():
+    return [0]
+
+is_rand_portfolio = get_random_portfolio_bool()
 
 countries_found = None
 sectors_found = None
@@ -130,7 +139,9 @@ def generate_portfolio_onclick(*args, **kwargs):
     start = start_date_input
     end = end_date_input
     nbr_tickers  = nbr_tickers_input
-    portfolio[0] = get_portfolio(universe=universe,filters=filters,weights=weights,sort_cri=sort_cri,start=start,end=end,nbr_tickers=nbr_tickers)
+    portfolio[0] = get_portfolio(universe=universe,filters=filters,weights=weights,sort_cri=sort_cri,start=start,end=end,nbr_tickers=nbr_tickers, is_rand=is_rand_portfolio[0])
+    if sort_cri == 'Random':
+        is_rand_portfolio[0] = is_rand_portfolio[0] + 1
 
 
 
@@ -159,6 +170,14 @@ data_load_state.text("Done! (using st.cache_data)")
 if st.checkbox('Show raw data'):
     st.subheader('Raw data')
     st.write(data)
+
+if portfolio[0] is None:
+    st.text("Let's Build a portfolio")
+    st.image("../img/Finance app-pana.png")
+elif portfolio[0] == 'na':
+    st.text('No ticker found!!!')
+    st.text('Please reset your filters!')
+    st.image("../img/Empty-pana.png")
 
 st.subheader('Number of pickups by hour')
 hist_values = np.histogram(data[DATE_COLUMN].dt.hour, bins=24, range=(0,24))[0]

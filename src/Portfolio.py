@@ -20,8 +20,9 @@ class Portfolio:
         data = data.ffill()
         data = data.bfill()
         data['portfolio'] = data.multiply(self.weights, axis=1).sum(axis=1)
+        data['returns'] = data['portfolio'].pct_change(1)
         #data.fillna(0)
-        print(data)
+        data['returns'] = data['returns'].ffill().bfill()
         self.df = data
 
     def computeWeightFromKey(self, func_weight_name : str):
