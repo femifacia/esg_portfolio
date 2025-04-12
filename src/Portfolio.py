@@ -2,6 +2,7 @@ import ticker_utilities
 import yfinance as yf
 import pandas as pd
 import filters_universe
+import weight_portfolio
 
 
 class Portfolio:
@@ -23,12 +24,21 @@ class Portfolio:
         print(data)
         self.df = data
 
+    def computeWeightFromKey(self, func_weight_name : str):
+        func = weight_portfolio.map_weight[func_weight_name]
+        self.weights = func(self.filtered_tickers_arr)
+
 
     def computeWeight(self, func_weight):
         self.weights = func_weight(self.filtered_tickers_arr)
 
     def cut_out_of_cart_tickers(self, nbr : int):
         self.filtered_tickers_arr = self.filtered_tickers_arr[:nbr]
+        self.filtered_tickers_set = set(self.filtered_tickers_arr)
+
+    def addSortCriteria(self, func_sort_name :str):
+        func = filters_universe.map_sort[func_sort_name]
+        self.filtered_tickers_arr = func(self.filtered_tickers_arr)
         self.filtered_tickers_set = set(self.filtered_tickers_arr)
 
     def addFilterWithArgsFromKey(self, filter_func_name, args, is_and = 1):

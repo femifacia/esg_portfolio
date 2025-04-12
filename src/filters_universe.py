@@ -64,26 +64,37 @@ map_filters = {"sectors_accepted" : get_sectors_accepted,
 }
 
 def get_total_note_asc(tickers : list[Asset]):
-    ans = sorted(tickers, lambda x : x.esg_total_score,reverse=0)
+    ans = sorted(tickers, key =lambda x : x.esg_total_score,reverse=0)
     return ans
 
 def get_total_note_desc(tickers : list[Asset]):
-    ans = sorted(tickers, lambda x : x.esg_total_score,reverse=1)
+    ans = sorted(tickers, key = lambda x : x.esg_total_score,reverse=1)
     return ans
 
 def get_lexciographical_ticker_asc(tickers : list[Asset]):
-    ans = sorted(tickers, lambda x : x.ticker,reverse=0)
+    ans = sorted(tickers, key = lambda x : x.ticker,reverse=0)
     return ans
 
 
 def get_lexciographical_ticker_desc(tickers : list[Asset]):
-    ans = sorted(tickers, lambda x : x.ticker,reverse=1)
+    ans = sorted(tickers, key = lambda x : x.ticker,reverse=1)
+#    print(ans)
+#    print("before", tickers)
     return ans
 
-['ESG Total note ascending',
-                          "ESG Total note descending",
-                          'Ascending lexicographic order on ticker names',
-                          'Descending lexicographic order on ticker names',
-                          'Random',
-                          'None'
-                          ]
+
+def get_random(tickers : list[Asset]):
+    ans = tickers.copy()
+    shuffle(ans)
+    return ans
+
+def get_no_sort_criteria(tickers : list[Asset]):
+    return tickers
+
+map_sort = {'ESG Total note ascending' : get_total_note_asc,
+                          "ESG Total note descending" : get_total_note_desc,
+                          'Ascending lexicographic order on ticker names' : get_lexciographical_ticker_asc,
+                          'Descending lexicographic order on ticker names' : get_lexciographical_ticker_desc,
+                          'Random' : get_random,
+                          'None' : get_no_sort_criteria
+                          }

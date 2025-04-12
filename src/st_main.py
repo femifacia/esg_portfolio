@@ -14,10 +14,14 @@ def get_portfolio(universe : list[str], filters : dict[str], weights : str, sort
     portf = Portfolio(universe, start=start, end=end)
     for i in filters:
         portf.addFilterWithArgsFromKey(i, filters[i])
+    portf.addSortCriteria(sort_cri)
     portf.cut_out_of_cart_tickers(nbr_tickers)
+    portf.computeWeightFromKey(weights)
     print(portf.filtered_tickers_arr)
     for i in (portf.filtered_tickers_arr):
         i.describe()
+    print(portf.weights)
+    print()
 
 
 portfolio = init_portfolio()
