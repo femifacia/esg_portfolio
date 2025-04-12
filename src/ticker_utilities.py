@@ -30,17 +30,44 @@ def get_content_dir(path) -> list[str]:
 def load_tickers(info_dir="../data/ticker_infos/", esg_dir='../data/ticker_esg/'):
     info_tickers = get_content_dir(info_dir)
     info_tickers.sort()
-    print(info_tickers)
+    ans = []
+#    print(info_tickers)
     for i in info_tickers:
         fd = open(info_dir + i, "rb")
         info = pickle.load(fd)
+        asset = Asset.Asset(i)
+        asset.load_info(info)
 #        print(info)
         fd.close()
-        print(i)
+#        print(i)
         fd = open(esg_dir + i, 'rb')
         esg_data = pickle.load(fd)
-        print(esg_data)
+#        print(esg_data)
         fd.close()
+
+        asset.load_esg(esg_data)
+        ans.append(asset)
+    return ans
+
+def get_countries(tickers : list[Asset.Asset]) -> set[str]:
+    print("AH")
+    ans = set()
+    for i in tickers:
+        ans.add(i.country)
+    return ans
+
+
+def get_sector(tickers : list[Asset.Asset]) -> set[str]:
+    ans = set()
+    for i in tickers:
+        ans.add(i.sector)
+    return ans
+
+def get_exchange(tickers : list[Asset.Asset]) -> set[str]:
+    ans = set()
+    for i in tickers:
+        ans.add(i.exchange)
+    return ans
 
 
 if __name__ == '__main__':

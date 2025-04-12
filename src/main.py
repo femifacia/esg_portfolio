@@ -20,3 +20,22 @@ portfolio.plotPerf()
 #info = ticker.info
 #esg = info.get("esgScores", {})
 #print(ticker.info)
+
+
+#countries_found = None
+#sectors_found = None
+#exchanges_found = None
+#
+##@st.cache_data
+#def load_criteria_info():
+#    global countries_found
+#    global sectors_found
+#    global exchanges_found
+#    tickers = ticker_utilities.load_tickers()
+#    print("ah",tickers)
+#    countries_found = ticker_utilities.get_countries(tickers)
+#    sectors_found = ticker_utilities.get_sector(tickers)
+#    print('huuumm', sectors_found)
+#    exchanges_found = ticker_utilities.get_exchange(tickers)
+#
+#load_criteria_info()

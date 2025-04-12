@@ -1,6 +1,46 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import ticker_utilities
+
+
+@st.cache_resource
+def init_generating_error(is_error : bool) -> list[bool]:
+    return [0]
+
+@st.cache_resource
+def init_error_message(mess : str) -> list[str]:
+    return [""]
+
+countries_found = None
+sectors_found = None
+exchanges_found = None
+is_generating_error = init_generating_error(0)
+error_message = init_error_message("")
+
+@st.cache_data
+def load_criteria_info():
+    tickers = ticker_utilities.load_tickers()
+    print("ah",tickers)
+    countries_found = ticker_utilities.get_countries(tickers)
+    sectors_found = ticker_utilities.get_sector(tickers)
+    print('huuumm', sectors_found)
+    exchanges_found = ticker_utilities.get_exchange(tickers)
+    return countries_found, sectors_found, exchanges_found
+
+countries_found, sectors_found, exchanges_found = load_criteria_info()
+
+sort_esg_criteria_arr =  ['ESG Total note ascending',
+                          "ESG Total note descending",
+                          'Ascending lexicographic order on ticker names',
+                          'Descending lexicographic order on ticker names',
+                          'Random',
+                          'None'
+                          ]
+
+
+weight_criteria = ['Equally weighted',
+                   'ESG Total Score weighted']
 
 st.title('Portolio ESG Builder')
 
@@ -9,15 +49,60 @@ DATA_URL = ('https://s3-us-west-2.amazonaws.com/'
             'streamlit-demo-data/uber-raw-data-sep14.csv.gz')
 
 data_load_state = st.text("Let's build an ESG Portfolio")
-nbr_tickers_input = st.sidebar.slider('Tickers', 1, 39, 5)
+st.sidebar.title("Criteria & Filters")
+st.sidebar.subheader("Universe Picking")
+universe_input = st.sidebar.multiselect("Universe", ["SPX", "CAC40"], 'SPX')
+
+st.sidebar.subheader("Filters")
+#print(sectors_found)
+sectors_accepted = st.sidebar.multiselect("Sectors Accepted", sectors_found)
+countries_accepted = st.sidebar.multiselect("Countries Accepted", countries_found)
+exchanges_accepted = st.sidebar.multiselect("Exchange Accepted", exchanges_found)
+min_esg_total_note = st.sidebar.slider('Minimum ESG Total Score', 0, 100, 0)
+max_esg_total_note = st.sidebar.slider('Maximum ESG Total Score', 1, 101, 101)
+
+st.sidebar.subheader("Weight for tickers")
+weight_input = st.sidebar.radio("Weights", weight_criteria)
+
+
+
+st.sidebar.subheader("Sort criteria")
+sort_input= st.sidebar.radio("Sort by", sort_esg_criteria_arr)
+
+st.sidebar.subheader("Max numbers of tickers")
+nbr_tickers_input = st.sidebar.slider('Number of tickers', 1, 39, 5)
 nbr_ticker = st.slider('Tickers', 1, 50, 17)
-def test_onclick(*args, **kwargs):
-    if int(nbr_tickers_input) < 10:
-        st.sidebar.success("Good")
-    else:
-        st.sidebar.error("too high")
-    
-generate_input = st.sidebar.button('Generate Portfolio',on_click=test_onclick)
+
+st.sidebar.subheader("Date Range")
+start_date_input = st.sidebar.date_input("Start Date", "2018-01-01")
+end_date_input = st.sidebar.date_input("Stop Date")
+
+#print(start_date_input)
+st.sidebar.subheader("Generation")
+
+def generate_portfolio_onclick(*args, **kwargs):
+    global is_generating_error
+    global error_message
+    universe = universe_input
+    if len(universe) == 0:
+        is_generating_error[0] = 1
+        error_message[0] = 'Empty Universe. Choose your universes'
+        return
+    if min_esg_total_note >= max_esg_total_note:
+        is_generating_error[0] = 1
+        error_message[0] = 'Minimum Total ESG Score Has to be **Lower than** Maximum Total ESG Score'
+        return
+    is_generating_error[0] = 0
+    error_message[0] = 0
+
+
+ 
+generate_input = st.sidebar.button('Generate Portfolio',on_click=generate_portfolio_onclick)
+
+if is_generating_error[0]:
+    print('kkk')
+    st.sidebar.error(error_message[0])
+
 
 
 
