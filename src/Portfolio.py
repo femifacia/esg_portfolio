@@ -1,5 +1,7 @@
+print('ikk')
 import ticker_utilities
 import yfinance as yf
+print("oks")
 import pandas as pd
 import filters_universe
 import weight_portfolio
