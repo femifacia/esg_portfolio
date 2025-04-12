@@ -27,7 +27,7 @@ def get_content_dir(path) -> list[str]:
     files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
     return files
 
-def load_tickers(info_dir="../data/ticker_infos/", esg_dir='../data/ticker_esg/'):
+def load_tickers(info_dir="./data/ticker_infos/", esg_dir='../data/ticker_esg/'):
     info_tickers = get_content_dir(info_dir)
     info_tickers.sort()
     ans = []
