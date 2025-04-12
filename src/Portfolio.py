@@ -1,8 +1,30 @@
 import ticker_utilities
-
+import yfinance as yf
+import pandas as pd
 
 
 class Portfolio:
+
+    def plotPerf(self):
+        data = yf.download(self.bench, start=self.start)['Close']
+        self.bench_df = data
+        print(data)
+        pass
+
+    def backtest(self):
+        tickers = [i.ticker for  i in self.filtered_tickers_arr]
+        print(self.weights)
+        data = yf.download(tickers, start=self.start)['Close']
+        data = data.ffill()
+        data = data.bfill()
+        data['portfolio'] = data.multiply(self.weights, axis=1).sum(axis=1)
+        #data.fillna(0)
+        print(data)
+        self.df = data
+
+
+    def computeWeight(self, func_weight):
+        self.weights = func_weight(self.filtered_tickers_arr)
 
     def addFilter(self, filter_func, is_and = 0):
 #        cmp = self.filtered_tickers_set if is_and else self.tickers_set
@@ -32,3 +54,6 @@ class Portfolio:
         self.filtered_tickers_arr = []
         self.filtered_tickers_set = set()
         self.filter_count = 0
+        self.start = '2018-01-01'
+        self.end = '2025-01-01'
+        self.bench = ['SUSW.L']
