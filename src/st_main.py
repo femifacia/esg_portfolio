@@ -4,6 +4,10 @@ import numpy as np
 import ticker_utilities
 from Portfolio import Portfolio
 
+st.title('Portolio ESG Builder')
+data_load_state = st.text('')
+
+
 
 @st.cache_resource
 def init_portfolio():
@@ -11,6 +15,8 @@ def init_portfolio():
 
 @st.cache_resource
 def get_portfolio(universe : list[str], filters : dict[str], weights : str, sort_cri, start : str, end : str, nbr_tickers : int, is_rand=0):
+    #st.title('Portolio ESG Builder')
+    data_load_state.text('loading_data')
     portf = Portfolio(universe, start=start, end=end)
     for i in filters:
         portf.addFilterWithArgsFromKey(i, filters[i])
@@ -23,7 +29,8 @@ def get_portfolio(universe : list[str], filters : dict[str], weights : str, sort
     for i in (portf.filtered_tickers_arr):
         i.describe()
     print(portf.weights)
-    #portf.backtest()
+    portf.backtest()
+    portf.plotPerf()
     return portf
 
 
@@ -72,13 +79,12 @@ sort_esg_criteria_arr =  ['ESG Total note ascending',
 weight_criteria = ['Equally weighted',
                    'ESG Total Score weighted']
 
-st.title('Portolio ESG Builder')
 
 DATE_COLUMN = 'date/time'
 DATA_URL = ('https://s3-us-west-2.amazonaws.com/'
             'streamlit-demo-data/uber-raw-data-sep14.csv.gz')
 
-data_load_state = st.text("Let's build an ESG Portfolio")
+#data_load_state = st.text("Let's build an ESG Portfolio")
 st.sidebar.title("Criteria & Filters")
 st.sidebar.subheader("Universe Picking")
 universe_input = st.sidebar.multiselect("Universe", ["SP500"], 'SP500')
@@ -101,7 +107,7 @@ sort_input= st.sidebar.radio("Sort by", sort_esg_criteria_arr)
 
 st.sidebar.subheader("Max numbers of tickers")
 nbr_tickers_input = st.sidebar.slider('Number of tickers', 1, 39, 5)
-nbr_ticker = st.slider('Tickers', 1, 50, 17)
+#nbr_ticker = st.slider('Tickers', 1, 50, 17)
 
 st.sidebar.subheader("Date Range")
 start_date_input = st.sidebar.date_input("Start Date", "2018-01-01")
@@ -163,13 +169,33 @@ def load_data(nrows):
     data[DATE_COLUMN] = pd.to_datetime(data[DATE_COLUMN])
     return data
 
-data_load_state = st.text('Loading data...')
-data = load_data(10000)
-data_load_state.text("Done! (using st.cache_data)")
+#data = load_data(10000)
+#data_load_state.text("Done! (using st.cache_data)")
 
-if st.checkbox('Show raw data'):
-    st.subheader('Raw data')
-    st.write(data)
+#if st.checkbox('Show raw data'):
+#    st.subheader('Raw data')
+#    st.write(data)
+
+def print_portfolio():
+    st.text(f'Tickers found : **{len(portfolio[0].filtered_tickers_arr)}**' )
+    st.text(f'{portfolio[0].filtered_tickers_arr}')
+    st.text(f'weights : {portfolio[0].weights}')
+    p : Portfolio = portfolio[0]
+    total_esg_score = sum(i.esg_total_score for i in p.filtered_tickers_arr)
+    st.text(f'Total esg score: {total_esg_score}')
+    df = pd.DataFrame({'portfolio returns' : p.df["returns"].cumsum().ffill().bfill(),
+                       'bench_returns' : p.bench_df['returns'].cumsum().ffill().bfill()})
+    st.subheader('Portfolio Return vs Benchmark')
+    st.line_chart(df)
+    sector_dict = {}
+
+    for i in p.filtered_tickers_arr:
+        sector_dict[i.sector] = sector_dict.get(i.sector, 0) + 1
+    print(sector_dict)
+    st.subheader('Sector Repartition')
+    st.bar_chart(sector_dict,x_label='sectors')
+
+
 
 if portfolio[0] is None:
     st.text("Let's Build a portfolio")
@@ -178,14 +204,16 @@ elif portfolio[0] == 'na':
     st.text('No ticker found!!!')
     st.text('Please reset your filters!')
     st.image("../img/Empty-pana.png")
+else:
+    print_portfolio()
 
-st.subheader('Number of pickups by hour')
-hist_values = np.histogram(data[DATE_COLUMN].dt.hour, bins=24, range=(0,24))[0]
-st.bar_chart(hist_values)
+#st.subheader('Number of pickups by hour')
+#hist_values = np.histogram(data[DATE_COLUMN].dt.hour, bins=24, range=(0,24))[0]
+#st.bar_chart(hist_values)
 
 # Some number in the range 0-23
-hour_to_filter = st.slider('hour', 0, 23, 17)
-filtered_data = data[data[DATE_COLUMN].dt.hour == hour_to_filter]
+#hour_to_filter = st.slider('hour', 0, 23, 17)
+#filtered_data = data[data[DATE_COLUMN].dt.hour == hour_to_filter]
 
-st.subheader('Map of all pickups at %s:00' % hour_to_filter)
-st.map(filtered_data)
+#st.subheader('Map of all pickups at %s:00' % hour_to_filter)
+#st.map(filtered_data)

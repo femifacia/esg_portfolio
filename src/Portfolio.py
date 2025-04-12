@@ -9,6 +9,7 @@ class Portfolio:
 
     def plotPerf(self):
         data = yf.download(self.bench, start=self.start)['Close']
+        data['returns'] = data[self.bench[0]].pct_change(1).ffill().bfill()
         self.bench_df = data
         print(data)
         pass
