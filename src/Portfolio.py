@@ -18,6 +18,7 @@ class Portfolio:
         tickers = [i.ticker for  i in self.filtered_tickers_arr]
         print(self.weights)
         data = yf.download(tickers, start=self.start, end=self.end)['Close']
+        print('jejejeje', len(data.columns))
         data = data.ffill()
         data = data.bfill()
         data['portfolio'] = data.multiply(self.weights, axis=1).sum(axis=1)
@@ -35,6 +36,8 @@ class Portfolio:
         self.weights = func_weight(self.filtered_tickers_arr)
 
     def cut_out_of_cart_tickers(self, nbr : int):
+        if len(self.filtered_tickers_arr) <= nbr:
+            return
         self.filtered_tickers_arr = self.filtered_tickers_arr[:nbr]
         self.filtered_tickers_set = set(self.filtered_tickers_arr)
 

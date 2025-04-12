@@ -179,7 +179,7 @@ def load_data(nrows):
 def print_portfolio():
     st.text(f'Tickers found : **{len(portfolio[0].filtered_tickers_arr)}**' )
     st.text(f'{portfolio[0].filtered_tickers_arr}')
-    st.text(f'weights : {portfolio[0].weights}')
+#    st.text(f'weights : {portfolio[0].weights}')
     p : Portfolio = portfolio[0]
     total_esg_score = sum(i.esg_total_score for i in p.filtered_tickers_arr)
     st.text(f'Total esg score: {total_esg_score}')
@@ -188,12 +188,33 @@ def print_portfolio():
     st.subheader('Portfolio Return vs Benchmark')
     st.line_chart(df)
     sector_dict = {}
+    country_dict = {}
+    exchange_dict = {}
+    weight_dict = {}
 
     for i in p.filtered_tickers_arr:
         sector_dict[i.sector] = sector_dict.get(i.sector, 0) + 1
+        country_dict[i.country] = sector_dict.get(i.country, 0) + 1
+        exchange_dict[i.exchange] = sector_dict.get(i.exchange, 0) + 1
+        
     print(sector_dict)
+    for i in range(len(p.filtered_tickers_arr)):
+        weight_dict[p.filtered_tickers_arr[i].ticker] = p.weights[i]
+
+    st.subheader('Weights Repartition')
+    st.bar_chart(weight_dict,x_label='Tickers',color=['#00ff00'])
+
     st.subheader('Sector Repartition')
     st.bar_chart(sector_dict,x_label='sectors')
+
+    st.subheader('Exchange Repartition')
+    st.bar_chart(exchange_dict,x_label='echange')
+
+    st.subheader('Country Repartition')
+    st.bar_chart(country_dict,x_label='country',color=['#00ff00'])
+
+    for i in range(len(p.filtered_tickers_arr)):
+        weight_dict[p.filtered_tickers_arr[i]] = p.weights[i]
 
 
 
